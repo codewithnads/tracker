@@ -1,4 +1,5 @@
 import os
+import json
 from csv import excel
 
 from pyairtable import Api
@@ -7,11 +8,17 @@ from pyairtable import Api
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = '/app_data/Cert.json'
 
+# Try to load from environment variable first, then fall back to file
+cert_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '/app_data/Cert.json')
+firebase_cred_json = os.getenv('FIREBASE_CREDENTIALS')
 
-# Use a service account.
-cred = credentials.Certificate('/app_data/Cert.json')
+if firebase_cred_json:
+    # If credentials are stored as JSON string in env variable
+    cred = credentials.Certificate(json.loads(firebase_cred_json))
+else:
+    # Fall back to file path
+    cred = credentials.Certificate(cert_path)
 
 app = firebase_admin.initialize_app(cred)
 
