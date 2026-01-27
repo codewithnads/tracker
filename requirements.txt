@@ -1,0 +1,8 @@
+flask
+flasgger
+flask_restful
+pyairtable
+gunicorn
+firebase-admin
+numpy
+flask-cors
