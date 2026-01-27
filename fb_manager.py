@@ -9,16 +9,30 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-# Try to load from environment variable first, then fall back to file
-cert_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '/app_data/Cert.json')
+# Load Firebase credentials from environment variable or file
 firebase_cred_json = os.getenv('FIREBASE_CREDENTIALS')
+cert_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
 if firebase_cred_json:
     # If credentials are stored as JSON string in env variable
-    cred = credentials.Certificate(json.loads(firebase_cred_json))
-else:
-    # Fall back to file path
+    try:
+        cred = credentials.Certificate(json.loads(firebase_cred_json))
+    except json.JSONDecodeError:
+        raise ValueError("FIREBASE_CREDENTIALS environment variable is not valid JSON")
+elif cert_path and os.path.exists(cert_path):
+    # If file path is specified and exists
     cred = credentials.Certificate(cert_path)
+else:
+    # Try default local path only if it exists
+    default_path = 'app_data/Cert.json'
+    if os.path.exists(default_path):
+        cred = credentials.Certificate(default_path)
+    else:
+        raise ValueError(
+            "Firebase credentials not found. Please set FIREBASE_CREDENTIALS "
+            "environment variable with your Firebase credentials JSON, or provide "
+            "the certificate file at app_data/Cert.json"
+        )
 
 app = firebase_admin.initialize_app(cred)
 
