@@ -5,7 +5,7 @@ import numpy as np
 TAGS_LIST = {
     'NADEEM M' : [['Self Transfer', 'Ignore'],'*'],
     'NADEEM M' : [['Self Transfer', 'Ignore'],'*'],
-    '9743614471@ybl' : [['Self Transfer', 'Ignore'],'*']
+    '9743614471@ybl' : [['Self Transfer', 'Ignore'],'*']  
 }
 
 def parseMessage(bank, msg, time):
