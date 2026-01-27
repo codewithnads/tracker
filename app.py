@@ -212,6 +212,23 @@ class Wake(Resource):
             return "Woke-up, Thank u :-)", 200
         return "Error", 500
 
+
+@app.route('/')
+def index():
+    """Root endpoint that shows API info"""
+    return {
+        "message": "Tracker API is running",
+        "endpoints": {
+            "records": "/records",
+            "add-record": "/add-record",
+            "update-records": "/update-records",
+            "add-batch": "/add-batch",
+            "wake-up": "/wake-up",
+            "api-docs": "/apidocs"
+        }
+    }, 200
+
+
 api.add_resource(AddRecord, "/add-record")
 api.add_resource(Records, "/records")
 api.add_resource(UpdateRecords, "/update-records")
