@@ -516,23 +516,28 @@ def parseMessage(bank, msg, time):
     if 'INDUSB' in bank.upper():
         BNK = 'INDUSB'
         if 'A/C *XX' in msg and 'debited by Rs' in msg and 'towards' in msg and 'RRN:' in msg:
-            account, rest = msg.split('A/C *XX')[1].split(' debited by Rs ')
-            amount, rest = rest.split(' towards ')
-            to, rest = rest.split('. RRN:')
-            ref, rest = rest.split('. Avl Bal:')
-            balance = rest.split('. Not you?')[0]
-            msg_json = {
-                'type': 'Debit',
-                'mode': 'UPI',
-                'accountType': 'Savings',
-                'to_from': to.strip(),
-                'account': account.strip(),
-                'amount': amount.strip(),
-                'refNo': ref.strip(),
-                'balance': balance.strip(),
-                'time': time.strftime("%d-%b, %I:%M %p")
-            }
-            key = f"{BNK}_{account.strip()}"
+            try:
+                account, rest = msg.split('A/C *XX')[1].split(' debited by Rs ')
+                amount, rest = rest.split(' towards ')
+                to, rest = rest.split('. RRN:')
+                ref, rest = rest.split('. Avl Bal:')
+                balance = rest.split('. Not you?')[0]
+                msg_json = {
+                    'type': 'Debit',
+                    'mode': 'UPI',
+                    'accountType': 'Savings',
+                    'to_from': to.strip(),
+                    'account': account.strip(),
+                    'amount': amount.strip(),
+                    'refNo': ref.strip(),
+                    'balance': balance.strip(),
+                    'time': time.strftime("%d-%b, %I:%M %p")
+                }
+                key = f"{BNK}_{account.strip()}"
+            except Exception as e:
+                print(f"Error parsing INDUSB message: {e}")
+                print(f"Message: {msg}")
+                key = BNK + '_NA'
         else:
             # print(bank,msg)
             key = BNK + '_NA'
