@@ -514,7 +514,7 @@ def parseMessage(bank, msg, time):
             pass
 
     if 'INDUSB' in bank.upper():
-        BNK = 'INDUSIND'
+        BNK = 'INDUSB'
         if 'A/C *XX' in msg and 'debited by Rs' in msg and 'towards' in msg and 'RRN:' in msg:
             account, rest = msg.split('A/C *XX')[1].split(' debited by Rs ')
             amount, rest = rest.split(' towards ')
@@ -562,7 +562,7 @@ paymentInfo = {
     'HDFC' : {},
     'IDFC' : {},
     'ONE' : {},
-    'INDUSIND' : {},
+    'INDUSB' : {},
     'Refunds' : []
 }
 
