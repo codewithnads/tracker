@@ -7,7 +7,8 @@ from formatter import *
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-CORS(app)
+# Enable CORS with all origins
+CORS(app, resources={r"/*": {"origins": "*"}})
 api = Api(app)
 
 swagger = Swagger(app)

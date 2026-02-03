@@ -91,7 +91,7 @@ def import_all_from_xml(records,stash):
 
     return sts_success and rec_success
 
-def get_all_records(user='Ritam'):
+def get_all_records(user='Nadeem'):
     json = {}
 
     for bank in db.collection(user).list_documents():
