@@ -1,57 +1,36 @@
 import os
 import json
 from csv import excel
-
 from pyairtable import Api
 
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+from firebase_admin import credentials, firestore
 
-# Robust Firebase credentials loader
-firebase_cred_json = os.getenv("FIREBASE_CREDENTIALS")
-cred = None
-print(f"FIREBASE_CREDENTIALS: {firebase_cred_json}")
-def _load_cred_from_env(value):
-    v = value.strip()
-    # If it looks like JSON, try to parse
+def load_firebase_cred():
+    firebase_cred_json = os.getenv("FIREBASE_CREDENTIALS")
+
+    if not firebase_cred_json:
+        raise ValueError(
+            "❌ FIREBASE_CREDENTIALS env var is missing. "
+            "Set it in Vercel → Project → Settings → Environment Variables."
+        )
+
+    v = firebase_cred_json.strip()
+
+    # if JSON string
     if v.startswith("{"):
-        try:
-            data = json.loads(v)
-        except json.JSONDecodeError:
-            raise ValueError("FIREBASE_CREDENTIALS is set but not valid JSON")
+        data = json.loads(v)
         if "private_key" in data:
             data["private_key"] = data["private_key"].replace("\\n", "\n")
         return credentials.Certificate(data)
-    # If it looks like a path, try to load file from that path
+
+    # if it's a path (local only)
     if os.path.exists(v):
         return credentials.Certificate(v)
-    # Not JSON and not a valid path
-    raise ValueError("FIREBASE_CREDENTIALS must be JSON content or a valid filesystem path")
 
-# If running on Vercel and env var missing, fail fast with guidance
-if not firebase_cred_json and os.path.dirname(__file__).startswith("/var/task"):
-    raise ValueError(
-        "FIREBASE_CREDENTIALS environment variable is not set in Vercel. "
-        "Set FIREBASE_CREDENTIALS to the minified JSON (escape newlines as \\n) in Vercel Project → Environment Variables."
-    )
+    raise ValueError("FIREBASE_CREDENTIALS must be JSON or a valid path")
 
-if firebase_cred_json:
-    cred = _load_cred_from_env(firebase_cred_json)
-else:
-    # Local development fallback: try app_data/Cert.json in repo
-    cert_path = os.path.join(os.path.dirname(__file__), "app_data", "Cert.json")
-    if os.path.exists(cert_path):
-        cred = credentials.Certificate(cert_path)
-    else:
-        default_path = os.path.join(os.getcwd(), "app_data", "Cert.json")
-        if os.path.exists(default_path):
-            cred = credentials.Certificate(default_path)
-        else:
-            raise ValueError(
-                "Firebase credentials not found. Set FIREBASE_CREDENTIALS env var (minified JSON) "
-                "or place app_data/Cert.json in the project root."
-            )
+cred = load_firebase_cred()
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
